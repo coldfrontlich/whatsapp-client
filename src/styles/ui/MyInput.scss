@@ -1,0 +1,14 @@
+@use '../variables';
+
+.input {
+	width: 100%;
+	padding: 10px;
+	border: 1px solid #ccc;
+	border-radius: variables.$border-radius;
+	margin: 5px 0 5px 0;
+}
+
+.input:focus {
+	outline: none;
+	border-color: variables.$button-font-active-color;
+}

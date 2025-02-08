@@ -1,0 +1,18 @@
+@use "../variables";
+
+.button {
+  margin-top: 5px;
+  margin-bottom: 5px;
+  width: 100%;
+  padding: 10px;
+  background: variables.$primary-color;
+  color: variables.$button-font-color;
+  border: none;
+  border-radius: variables.$border-radius;
+  cursor: pointer;
+}
+
+.button:hover {
+  background: variables.$secondary-color;
+  color: variables.$button-font-active-color;
+}
