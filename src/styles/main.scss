@@ -70,6 +70,8 @@ h1 {
 }
 
 .messages {
+	height: 500px;
+	overflow-y: scroll;
 	display: flex;
 	flex-direction: column;
 	align-items: end;
@@ -78,7 +80,14 @@ h1 {
 .message {
 	padding: 10px;
 	margin-bottom: 2px;
-	border: 1px solid variables.$secondary-color;
 	background-color: variables.$secondary-color;
 	border-radius: variables.$border-radius;
+}
+
+.message.sent {
+  background-color: variables.$secondary-color;
+}
+
+.message.received {
+  background-color: #f1f1f1;
 }

@@ -14,12 +14,12 @@ const ChatLayout = () => {
 	useEffect(() => {
 		const savedChats = JSON.parse(localStorage.getItem('chats')) || []
 		const savedMessages = JSON.parse(localStorage.getItem('messages')) || {}
-		setChats(savedChats)
+		setChats([...new Set(savedChats)])
 		setMessages(savedMessages)
 	}, [])
 
 	useEffect(() => {
-		localStorage.setItem('chats', JSON.stringify(chats))
+		localStorage.setItem('chats', JSON.stringify([...new Set(chats)]))
 	}, [chats])
 
 	useEffect(() => {
@@ -30,8 +30,10 @@ const ChatLayout = () => {
 		if (phoneNumber) {
 			const formattedNumber = phoneNumber.replace(/\D/g, '')
 			if (!chats.includes(formattedNumber)) {
-				setChats([...chats, formattedNumber])
+				const updatedChats = [...chats, formattedNumber]
+				setChats(updatedChats)
 				setMessages(prev => ({ ...prev, [formattedNumber]: [] }))
+				localStorage.setItem('chats', JSON.stringify(updatedChats))
 			}
 			setPhoneNumber('')
 			setSelectedChat(formattedNumber)
@@ -68,10 +70,10 @@ const ChatLayout = () => {
 				}))
 				setMessageText('')
 			} else {
-				console.log('Ошибка отправки сообщения')
+				console.log('Ошибка отправки')
 			}
 		} catch (e) {
-			console.log('Ошибка сети:', e)
+			console.log(e)
 		}
 	}
 
@@ -84,26 +86,32 @@ const ChatLayout = () => {
 		try {
 			const response = await fetch(apiUrl)
 			const data = await response.json()
-			console.log(data)
 
-			if (data && data.body && data.body.senderData) {
+			if (
+				data &&
+				data.body &&
+				(data.body.typeWebhook === 'incomingMessageReceived' ||
+					data.body.typeWebhook === 'outgoingMessageReceived')
+			) {
 				const sender = data.body.senderData.chatId.replace('@c.us', '')
-
 				if (!chats.includes(sender)) {
-					setChats(prev => [...prev, sender])
+					setChats(prev => [...new Set([...prev, sender])])
 				}
 
+				if (data.body.messageData && data.body.messageData.textMessageData) {
+					const newMessage = {
+						text: data.body.messageData.textMessageData.textMessage,
+						sender: 'them',
+					}
 
-				const newMessage = {
-					text: data.body.messageData.textMessageData.textMessage,
-					sender: 'them',
+					setMessages(prev => ({
+						...prev,
+						[sender]: [...(prev[sender] || []), newMessage],
+					}))
 				}
+			} 
 
-				setMessages(prev => ({
-					...prev,
-					[sender]: [...(prev[sender] || []), newMessage],
-				}))
-
+			if (data && data.receiptId) {
 				await fetch(
 					`https://${idInstance.slice(
 						0,
@@ -114,8 +122,8 @@ const ChatLayout = () => {
 					{ method: 'DELETE' }
 				)
 			}
-		} catch (error) {
-			console.error('Ошибка при получении сообщений:', error)
+		} catch (e) {
+			console.e('Ошибка при получении сообщений:', e)
 		}
 	}
 
