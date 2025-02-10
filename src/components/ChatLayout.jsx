@@ -109,7 +109,7 @@ const ChatLayout = () => {
 						[sender]: [...(prev[sender] || []), newMessage],
 					}))
 				}
-			} 
+			}
 
 			if (data && data.receiptId) {
 				await fetch(
